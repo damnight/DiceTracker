@@ -23,29 +23,34 @@ statTracking.statTracker = function () {
         // msg contains array of expressions, which are individual dice rolls
         for (let idx = 0; idx < msg.length; idx++){
 
-            let current_expression = msg[idx];
+            var current_expression = msg[idx];
 
             // check if expression is a roll by checking if a rollid is present
             if ( _.has(current_expression, "rollid")) {
-                log("stats");
+                log("current_expression");
+                log(current_expression);
+                var dice_rolls = current_expression["results"]["rolls"];
 
-                let dice_roll = current_expression["results"]["rolls"][0];
-                log(dice_roll);
+                // there can be multiple different kind of dice and rolls per expression
+                for (let idx_rolls = 0; idx_rolls<dice_rolls.length; idx_rolls++){
+                    var dice_roll = dice_rolls[idx_rolls];
 
-                let dice_count = dice_roll["dice"];
-                log(dice_count);
+                    // check if roll type is a Roll("R") there is also Mod("M")
+                    var dice_count = 0;
+                    if (dice_roll["type"] === "R") {
+                        dice_count = dice_roll["dice"];
+                        var dice_sides = dice_roll["sides"];
 
-                let dice_sides = dice_roll["sides"];
-                log(dice_sides);
+                        // check results for individual dice
+                        var results_from_roll = Array.from(dice_roll["results"]);
 
-                let results_from_roll = Array.from(dice_roll["results"]);
-                log(results_from_roll);
+                        for (let idx_dice = 0; idx_dice<dice_count; idx_dice++){
+                            var roll_result = results_from_roll[idx_dice]["v"];
+                            log(roll_result);
+                        };
+                    }; // end if
 
-                for (let idx_dice = 0; idx_dice<dice_count; idx_dice++){
-                    let roll_result = results_from_roll[idx_dice]["v"];
-                    log(roll_result);
-                }
-
+                }; // end for
 
             } else {
                 log("no dice roll found");
@@ -73,11 +78,9 @@ on("chat:message", (msg) => {
 
     } else if (msg.type === "rollresult") {
         log("custom dict");
-        let expression_dict = {"expression": null, "results": msg["content"], "rollid": null};
+        let expression_dict = {"expression": null, "results": JSON.parse(msg["content"]), "rollid": null};
         statTracking.statTracker.track([expression_dict]);
     }
-
-    log(msg);
 
 
 });
