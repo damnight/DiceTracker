@@ -17,8 +17,6 @@ statTracking.statTracker = function () {
 
     this.track = (msg) => {
         log("tracking stats");
-        log(msg.length);
-        log(msg);
 
         // msg contains array of expressions, which are individual dice rolls
         for (let idx = 0; idx < msg.length; idx++){
